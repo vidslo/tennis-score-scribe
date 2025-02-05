@@ -36,7 +36,7 @@ const Index = () => {
 
     const newState = processPoint(matchState, player, shot);
     setMatchState(newState);
-    setHistory((prev) => [...prev, newState]);
+    setHistory((prev) => [...prev, { ...newState }]); // Create a new object to ensure state immutability
     setFuture([]);
 
     if (shot === "Error") {
@@ -54,14 +54,14 @@ const Index = () => {
   const handleUndo = () => {
     if (history.length <= 1) return;
 
-    const previousStates = [...history];
-    const currentState = previousStates.pop()!;
-    const newCurrentState = previousStates[previousStates.length - 1];
-    
-    setMatchState(newCurrentState);
-    setHistory(previousStates);
-    setFuture((prev) => [currentState, ...prev]);
-    
+    const newHistory = history.slice(0, -1);
+    const lastState = history[history.length - 1];
+    const previousState = newHistory[newHistory.length - 1];
+
+    setMatchState({ ...previousState }); // Create a new object to ensure state immutability
+    setHistory(newHistory);
+    setFuture((prev) => [lastState, ...prev]);
+
     toast.info("Previous point undone", {
       style: { background: '#004b8d', color: 'white' }
     });
@@ -72,10 +72,10 @@ const Index = () => {
 
     const [nextState, ...remainingFuture] = future;
     
-    setMatchState(nextState);
+    setMatchState({ ...nextState }); // Create a new object to ensure state immutability
     setHistory((prev) => [...prev, nextState]);
     setFuture(remainingFuture);
-    
+
     toast.info("Point redone", {
       style: { background: '#004b8d', color: 'white' }
     });
