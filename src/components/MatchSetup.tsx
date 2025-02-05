@@ -38,11 +38,16 @@ const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-tennis-light p-4">
-      <Card className="w-full max-w-md p-6 space-y-6 bg-white shadow-lg rounded-xl">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8f9fa] p-4">
+      <img 
+        src="/lovable-uploads/e957e173-11e2-42da-a45f-433b12960eb1.png" 
+        alt="Manson Trojans Logo" 
+        className="w-32 h-32 mb-6"
+      />
+      <Card className="w-full max-w-md p-6 space-y-6 bg-white shadow-lg rounded-xl border-[#004b8d]">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold tracking-tighter">New Tennis Match</h1>
-          <p className="text-muted-foreground">Enter match details to begin</p>
+          <h1 className="text-3xl font-bold tracking-tighter text-[#004b8d]">New Tennis Match</h1>
+          <p className="text-[#b7b7b7]">Enter match details to begin</p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -55,7 +60,7 @@ const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
                 value={opponent}
                 onChange={(e) => setOpponent(e.target.value)}
                 required
-                className="w-full"
+                className="w-full border-[#004b8d] focus:ring-[#004b8d]"
               />
             </div>
 
@@ -79,14 +84,14 @@ const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label>{isDoubles ? "Team 1" : "Player 1"}</Label>
+              <Label>{isDoubles ? "Manson Team" : "Manson Player"}</Label>
               <div className="space-y-2">
                 <Input
                   placeholder={`Enter ${isDoubles ? "first player" : "player"} name`}
                   value={player1}
                   onChange={(e) => setPlayer1(e.target.value)}
                   required
-                  className="w-full"
+                  className="w-full border-[#004b8d] focus:ring-[#004b8d]"
                 />
                 {isDoubles && (
                   <Input
@@ -94,21 +99,21 @@ const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
                     value={player1Partner}
                     onChange={(e) => setPlayer1Partner(e.target.value)}
                     required
-                    className="w-full"
+                    className="w-full border-[#004b8d] focus:ring-[#004b8d]"
                   />
                 )}
               </div>
             </div>
             
             <div className="space-y-2">
-              <Label>{isDoubles ? "Team 2" : "Player 2"}</Label>
+              <Label>{isDoubles ? "Opponent Team" : "Opponent Player"}</Label>
               <div className="space-y-2">
                 <Input
                   placeholder={`Enter ${isDoubles ? "first player" : "player"} name`}
                   value={player2}
                   onChange={(e) => setPlayer2(e.target.value)}
                   required
-                  className="w-full"
+                  className="w-full border-[#004b8d] focus:ring-[#004b8d]"
                 />
                 {isDoubles && (
                   <Input
@@ -116,7 +121,7 @@ const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
                     value={player2Partner}
                     onChange={(e) => setPlayer2Partner(e.target.value)}
                     required
-                    className="w-full"
+                    className="w-full border-[#004b8d] focus:ring-[#004b8d]"
                   />
                 )}
               </div>
@@ -144,7 +149,7 @@ const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
 
           <Button
             type="submit"
-            className="w-full bg-tennis-purple hover:bg-tennis-purple/90 text-white"
+            className="w-full bg-[#004b8d] hover:bg-[#004b8d]/90 text-white"
             disabled={!player1 || !player2 || !opponent || (isDoubles && (!player1Partner || !player2Partner))}
           >
             Start Match

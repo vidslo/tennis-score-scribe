@@ -42,9 +42,13 @@ const Index = () => {
 
     if (shot === "Error") {
       const opponent = player === "player1" ? matchState.player2.name : matchState.player1.name;
-      toast(`Point to ${opponent} due to ${matchState[player].name}'s error`);
+      toast.success(`Point to ${opponent} due to ${matchState[player].name}'s error`, {
+        style: { background: '#004b8d', color: 'white' }
+      });
     } else {
-      toast(`${matchState[player].name} won point with ${shot}`);
+      toast.success(`${matchState[player].name} won point with ${shot}`, {
+        style: { background: '#004b8d', color: 'white' }
+      });
     }
   };
 
@@ -58,7 +62,9 @@ const Index = () => {
     setHistory((prev) => prev.slice(0, -1));
     setFuture((prev) => [currentState, ...prev]);
     
-    toast("Move undone");
+    toast.info("Previous point undone", {
+      style: { background: '#004b8d', color: 'white' }
+    });
   };
 
   const handleRedo = () => {
@@ -70,7 +76,9 @@ const Index = () => {
     setHistory((prev) => [...prev, nextState]);
     setFuture((prev) => prev.slice(1));
     
-    toast("Move redone");
+    toast.info("Point redone", {
+      style: { background: '#004b8d', color: 'white' }
+    });
   };
 
   if (!matchState) {
@@ -88,19 +96,19 @@ const Index = () => {
           onClick={handleUndo} 
           disabled={history.length <= 1}
           variant="outline"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 bg-[#004b8d] text-white hover:bg-[#004b8d]/90 disabled:bg-[#b7b7b7]"
         >
           <Undo2 className="w-4 h-4" />
-          Undo
+          Undo Previous Point
         </Button>
         <Button 
           onClick={handleRedo} 
           disabled={future.length === 0}
           variant="outline"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 bg-[#004b8d] text-white hover:bg-[#004b8d]/90 disabled:bg-[#b7b7b7]"
         >
           <Redo2 className="w-4 h-4" />
-          Redo
+          Redo Point
         </Button>
       </div>
       <Scoreboard
