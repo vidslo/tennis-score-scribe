@@ -7,18 +7,20 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Card } from "./ui/card";
 
 interface MatchSetupProps {
-  onStartMatch: (player1: string, player2: string, sets: number) => void;
+  onStartMatch: (player1: string, player2: string, sets: number, opponent: string, isDoubles: boolean) => void;
 }
 
 const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
   const [player1, setPlayer1] = useState("");
   const [player2, setPlayer2] = useState("");
   const [sets, setSets] = useState("3");
+  const [opponent, setOpponent] = useState("");
+  const [isDoubles, setIsDoubles] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (player1 && player2) {
-      onStartMatch(player1, player2, parseInt(sets));
+    if (player1 && player2 && opponent) {
+      onStartMatch(player1, player2, parseInt(sets), opponent, isDoubles);
     }
   };
 
@@ -27,16 +29,47 @@ const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
       <Card className="w-full max-w-md p-6 space-y-6 bg-white shadow-lg rounded-xl">
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold tracking-tighter">New Tennis Match</h1>
-          <p className="text-muted-foreground">Enter player details to begin</p>
+          <p className="text-muted-foreground">Enter match details to begin</p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="player1">Player 1</Label>
+              <Label htmlFor="opponent">Opponent School</Label>
+              <Input
+                id="opponent"
+                placeholder="Enter opponent school name"
+                value={opponent}
+                onChange={(e) => setOpponent(e.target.value)}
+                required
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="matchType">Match Type</Label>
+              <RadioGroup
+                defaultValue="singles"
+                value={isDoubles ? "doubles" : "singles"}
+                onValueChange={(value) => setIsDoubles(value === "doubles")}
+                className="flex space-x-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="singles" id="singles" />
+                  <Label htmlFor="singles">Singles</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="doubles" id="doubles" />
+                  <Label htmlFor="doubles">Doubles</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="player1">{isDoubles ? "Team 1" : "Player 1"}</Label>
               <Input
                 id="player1"
-                placeholder="Enter player 1 name"
+                placeholder={`Enter ${isDoubles ? "team" : "player"} 1 name`}
                 value={player1}
                 onChange={(e) => setPlayer1(e.target.value)}
                 required
@@ -45,10 +78,10 @@ const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="player2">Player 2</Label>
+              <Label htmlFor="player2">{isDoubles ? "Team 2" : "Player 2"}</Label>
               <Input
                 id="player2"
-                placeholder="Enter player 2 name"
+                placeholder={`Enter ${isDoubles ? "team" : "player"} 2 name`}
                 value={player2}
                 onChange={(e) => setPlayer2(e.target.value)}
                 required
@@ -79,7 +112,7 @@ const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
           <Button
             type="submit"
             className="w-full bg-tennis-purple hover:bg-tennis-purple/90 text-white"
-            disabled={!player1 || !player2}
+            disabled={!player1 || !player2 || !opponent}
           >
             Start Match
           </Button>

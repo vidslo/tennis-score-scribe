@@ -17,8 +17,14 @@ const Index = () => {
   const [history, setHistory] = useState<MatchState[]>([]);
   const [future, setFuture] = useState<MatchState[]>([]);
 
-  const handleStartMatch = (player1: string, player2: string, sets: number) => {
-    const initialState = createInitialMatchState(player1, player2, sets);
+  const handleStartMatch = (
+    player1: string,
+    player2: string,
+    sets: number,
+    opponent: string,
+    isDoubles: boolean
+  ) => {
+    const initialState = createInitialMatchState(player1, player2, sets, opponent, isDoubles);
     setMatchState(initialState);
     setHistory([initialState]);
     setFuture([]);
@@ -33,7 +39,8 @@ const Index = () => {
     setFuture([]);
 
     if (shot === "Error") {
-      toast(`${matchState[player].name} made an unforced error`);
+      const opponent = player === "player1" ? matchState.player2.name : matchState.player1.name;
+      toast(`Point to ${opponent} due to ${matchState[player].name}'s error`);
     } else {
       toast(`${matchState[player].name} won point with ${shot}`);
     }

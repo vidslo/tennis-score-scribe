@@ -14,12 +14,16 @@ export type MatchState = {
   totalSets: number;
   inTiebreak: boolean;
   gameHistory: string[];
+  opponent: string;
+  isDoubles: boolean;
 };
 
 export const createInitialMatchState = (
   player1Name: string,
   player2Name: string,
-  totalSets: number
+  totalSets: number,
+  opponent: string,
+  isDoubles: boolean
 ): MatchState => ({
   player1: {
     name: player1Name,
@@ -39,6 +43,8 @@ export const createInitialMatchState = (
   totalSets: totalSets,
   inTiebreak: false,
   gameHistory: [],
+  opponent: opponent,
+  isDoubles: isDoubles,
 });
 
 export const getPointsDisplay = (points: number): string => {
@@ -69,16 +75,13 @@ export const processTiebreakPoint = (
   const updatedState = { ...state };
   updatedState[winningPlayer].points += 1;
 
-  // Check for tiebreak win (7 points with 2-point lead)
   if (
     updatedState[winningPlayer].points >= 7 &&
     updatedState[winningPlayer].points - updatedState[winningPlayer === "player1" ? "player2" : "player1"].points >= 2
   ) {
-    // Award game and set
     updatedState[winningPlayer].games += 1;
     updatedState[winningPlayer].sets += 1;
     updatedState.inTiebreak = false;
-    // Reset points for next set
     updatedState.player1.points = 0;
     updatedState.player2.points = 0;
     updatedState.player1.games = 0;
@@ -91,8 +94,23 @@ export const processTiebreakPoint = (
 
 export const processPoint = (
   state: MatchState,
-  winningPlayer: "player1" | "player2",
+  player: "player1" | "player2",
   shot: Shot
+): MatchState => {
+  // For errors, award the point to the opponent
+  if (shot === "Error") {
+    const opponent = player === "player1" ? "player2" : "player1";
+    const updatedState = { ...state };
+    updatedState.gameHistory.push(`${updatedState[player].name} made an unforced error`);
+    return processNormalPoint(updatedState, opponent);
+  }
+
+  return processNormalPoint(state, player);
+};
+
+const processNormalPoint = (
+  state: MatchState,
+  winningPlayer: "player1" | "player2"
 ): MatchState => {
   if (state.inTiebreak) {
     return processTiebreakPoint(state, winningPlayer);
@@ -101,33 +119,24 @@ export const processPoint = (
   const updatedState = { ...state };
   const losingPlayer = winningPlayer === "player1" ? "player2" : "player1";
 
-  // Record shot in history
-  updatedState.gameHistory.push(`${updatedState[winningPlayer].name} won point with ${shot}`);
-
-  // Handle advantage scoring
   if (updatedState[winningPlayer].points === 3 && updatedState[losingPlayer].points === 3) {
     updatedState[winningPlayer].advantage = true;
   } else if (updatedState[winningPlayer].advantage) {
-    // Win game if player has advantage
     updatedState[winningPlayer].points = 0;
     updatedState[losingPlayer].points = 0;
     updatedState[winningPlayer].games += 1;
     updatedState.player1.advantage = false;
     updatedState.player2.advantage = false;
   } else if (updatedState[losingPlayer].advantage) {
-    // Remove advantage if losing player wins point
     updatedState[losingPlayer].advantage = false;
   } else if (updatedState[winningPlayer].points === 3) {
-    // Win game if at 40 and opponent not at 40
     updatedState[winningPlayer].points = 0;
     updatedState[losingPlayer].points = 0;
     updatedState[winningPlayer].games += 1;
   } else {
-    // Normal point increment
     updatedState[winningPlayer].points += 1;
   }
 
-  // Check for set win
   if (updatedState[winningPlayer].games >= 6) {
     if (updatedState[winningPlayer].games - updatedState[losingPlayer].games >= 2) {
       updatedState[winningPlayer].sets += 1;
