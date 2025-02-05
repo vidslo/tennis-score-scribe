@@ -13,6 +13,11 @@ import { toast } from "sonner";
 import { Undo2, Redo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+// Helper function to create deep copies of state
+const deepCopyState = (state: MatchState): MatchState => {
+  return JSON.parse(JSON.stringify(state));
+};
+
 const Index = () => {
   const [matchState, setMatchState] = useState<MatchState | null>(null);
   const [history, setHistory] = useState<MatchState[]>([]);
@@ -27,7 +32,7 @@ const Index = () => {
   ) => {
     const initialState = createInitialMatchState(player1, player2, sets, opponent, isDoubles);
     setMatchState(initialState);
-    setHistory([initialState]);
+    setHistory([deepCopyState(initialState)]);
     setFuture([]);
   };
 
@@ -36,11 +41,10 @@ const Index = () => {
 
     const newState = processPoint(matchState, player, shot);
     console.log("New state after point:", newState);
-    console.log("Current history before update:", history);
     
     setMatchState(newState);
     setHistory((prev) => {
-      const newHistory = [...prev, { ...newState }];
+      const newHistory = [...prev, deepCopyState(newState)];
       console.log("Updated history:", newHistory);
       return newHistory;
     });
@@ -63,12 +67,12 @@ const Index = () => {
 
     console.log("Current history before undo:", history);
     const newHistory = history.slice(0, -1);
-    const lastState = history[history.length - 1];
-    const previousState = newHistory[newHistory.length - 1];
+    const lastState = deepCopyState(history[history.length - 1]);
+    const previousState = deepCopyState(newHistory[newHistory.length - 1]);
 
     console.log("Previous state to restore:", previousState);
     
-    setMatchState({ ...previousState });
+    setMatchState(previousState);
     setHistory(newHistory);
     setFuture((prev) => {
       const newFuture = [lastState, ...prev];
@@ -86,12 +90,13 @@ const Index = () => {
 
     console.log("Current future states before redo:", future);
     const [nextState, ...remainingFuture] = future;
+    const stateToRestore = deepCopyState(nextState);
     
-    console.log("Next state to restore:", nextState);
+    console.log("Next state to restore:", stateToRestore);
     
-    setMatchState({ ...nextState });
+    setMatchState(stateToRestore);
     setHistory((prev) => {
-      const newHistory = [...prev, nextState];
+      const newHistory = [...prev, stateToRestore];
       console.log("Updated history after redo:", newHistory);
       return newHistory;
     });
