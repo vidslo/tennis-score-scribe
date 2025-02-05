@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MatchSetup from "@/components/MatchSetup";
 import Scoreboard from "@/components/Scoreboard";
@@ -37,7 +36,7 @@ const Index = () => {
 
     const newState = processPoint(matchState, player, shot);
     setMatchState(newState);
-    setHistory((prevHistory) => [...prevHistory, newState]);
+    setHistory((prev) => [...prev, newState]);
     setFuture([]);
 
     if (shot === "Error") {
@@ -55,11 +54,12 @@ const Index = () => {
   const handleUndo = () => {
     if (history.length <= 1) return;
 
-    const previousState = history[history.length - 2];
-    const currentState = matchState!;
+    const previousStates = [...history];
+    const currentState = previousStates.pop()!;
+    const newCurrentState = previousStates[previousStates.length - 1];
     
-    setMatchState(previousState);
-    setHistory((prev) => prev.slice(0, -1));
+    setMatchState(newCurrentState);
+    setHistory(previousStates);
     setFuture((prev) => [currentState, ...prev]);
     
     toast.info("Previous point undone", {
@@ -70,11 +70,11 @@ const Index = () => {
   const handleRedo = () => {
     if (future.length === 0) return;
 
-    const nextState = future[0];
+    const [nextState, ...remainingFuture] = future;
     
     setMatchState(nextState);
     setHistory((prev) => [...prev, nextState]);
-    setFuture((prev) => prev.slice(1));
+    setFuture(remainingFuture);
     
     toast.info("Point redone", {
       style: { background: '#004b8d', color: 'white' }

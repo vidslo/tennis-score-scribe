@@ -1,4 +1,3 @@
-
 export type Player = {
   name: string;
   points: number;
@@ -119,24 +118,33 @@ const processNormalPoint = (
   const updatedState = { ...state };
   const losingPlayer = winningPlayer === "player1" ? "player2" : "player1";
 
+  // Handle advantage scoring
   if (updatedState[winningPlayer].points === 3 && updatedState[losingPlayer].points === 3) {
+    // Deuce situation
     updatedState[winningPlayer].advantage = true;
+    updatedState[losingPlayer].advantage = false;
+  } else if (updatedState[losingPlayer].advantage) {
+    // Back to deuce
+    updatedState[losingPlayer].advantage = false;
+    updatedState[winningPlayer].advantage = false;
   } else if (updatedState[winningPlayer].advantage) {
-    updatedState[winningPlayer].points = 0;
-    updatedState[losingPlayer].points = 0;
+    // Win game after advantage
     updatedState[winningPlayer].games += 1;
+    updatedState.player1.points = 0;
+    updatedState.player2.points = 0;
     updatedState.player1.advantage = false;
     updatedState.player2.advantage = false;
-  } else if (updatedState[losingPlayer].advantage) {
-    updatedState[losingPlayer].advantage = false;
-  } else if (updatedState[winningPlayer].points === 3) {
-    updatedState[winningPlayer].points = 0;
-    updatedState[losingPlayer].points = 0;
+  } else if (updatedState[winningPlayer].points === 3 && updatedState[losingPlayer].points < 3) {
+    // Win game directly
     updatedState[winningPlayer].games += 1;
+    updatedState.player1.points = 0;
+    updatedState.player2.points = 0;
   } else {
+    // Normal point
     updatedState[winningPlayer].points += 1;
   }
 
+  // Check for set win
   if (updatedState[winningPlayer].games >= 6) {
     if (updatedState[winningPlayer].games - updatedState[losingPlayer].games >= 2) {
       updatedState[winningPlayer].sets += 1;
