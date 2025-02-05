@@ -12,15 +12,28 @@ interface MatchSetupProps {
 
 const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
   const [player1, setPlayer1] = useState("");
+  const [player1Partner, setPlayer1Partner] = useState("");
   const [player2, setPlayer2] = useState("");
+  const [player2Partner, setPlayer2Partner] = useState("");
   const [sets, setSets] = useState("3");
   const [opponent, setOpponent] = useState("");
   const [isDoubles, setIsDoubles] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (player1 && player2 && opponent) {
-      onStartMatch(player1, player2, parseInt(sets), opponent, isDoubles);
+    if (!opponent) return;
+
+    let team1Name = player1;
+    let team2Name = player2;
+
+    if (isDoubles) {
+      if (!player1Partner || !player2Partner) return;
+      team1Name = `${player1} / ${player1Partner}`;
+      team2Name = `${player2} / ${player2Partner}`;
+    }
+
+    if (team1Name && team2Name) {
+      onStartMatch(team1Name, team2Name, parseInt(sets), opponent, isDoubles);
     }
   };
 
@@ -66,27 +79,47 @@ const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="player1">{isDoubles ? "Team 1" : "Player 1"}</Label>
-              <Input
-                id="player1"
-                placeholder={`Enter ${isDoubles ? "team" : "player"} 1 name`}
-                value={player1}
-                onChange={(e) => setPlayer1(e.target.value)}
-                required
-                className="w-full"
-              />
+              <Label>{isDoubles ? "Team 1" : "Player 1"}</Label>
+              <div className="space-y-2">
+                <Input
+                  placeholder={`Enter ${isDoubles ? "first player" : "player"} name`}
+                  value={player1}
+                  onChange={(e) => setPlayer1(e.target.value)}
+                  required
+                  className="w-full"
+                />
+                {isDoubles && (
+                  <Input
+                    placeholder="Enter second player name"
+                    value={player1Partner}
+                    onChange={(e) => setPlayer1Partner(e.target.value)}
+                    required
+                    className="w-full"
+                  />
+                )}
+              </div>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="player2">{isDoubles ? "Team 2" : "Player 2"}</Label>
-              <Input
-                id="player2"
-                placeholder={`Enter ${isDoubles ? "team" : "player"} 2 name`}
-                value={player2}
-                onChange={(e) => setPlayer2(e.target.value)}
-                required
-                className="w-full"
-              />
+              <Label>{isDoubles ? "Team 2" : "Player 2"}</Label>
+              <div className="space-y-2">
+                <Input
+                  placeholder={`Enter ${isDoubles ? "first player" : "player"} name`}
+                  value={player2}
+                  onChange={(e) => setPlayer2(e.target.value)}
+                  required
+                  className="w-full"
+                />
+                {isDoubles && (
+                  <Input
+                    placeholder="Enter second player name"
+                    value={player2Partner}
+                    onChange={(e) => setPlayer2Partner(e.target.value)}
+                    required
+                    className="w-full"
+                  />
+                )}
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -112,7 +145,7 @@ const MatchSetup = ({ onStartMatch }: MatchSetupProps) => {
           <Button
             type="submit"
             className="w-full bg-tennis-purple hover:bg-tennis-purple/90 text-white"
-            disabled={!player1 || !player2 || !opponent}
+            disabled={!player1 || !player2 || !opponent || (isDoubles && (!player1Partner || !player2Partner))}
           >
             Start Match
           </Button>

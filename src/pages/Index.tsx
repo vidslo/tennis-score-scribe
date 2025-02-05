@@ -11,6 +11,8 @@ import {
   isMatchOver,
 } from "@/utils/tennisLogic";
 import { toast } from "sonner";
+import { Undo2, Redo2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [matchState, setMatchState] = useState<MatchState | null>(null);
@@ -35,7 +37,7 @@ const Index = () => {
 
     const newState = processPoint(matchState, player, shot);
     setMatchState(newState);
-    setHistory([...history, newState]);
+    setHistory((prevHistory) => [...prevHistory, newState]);
     setFuture([]);
 
     if (shot === "Error") {
@@ -50,22 +52,25 @@ const Index = () => {
     if (history.length <= 1) return;
 
     const previousState = history[history.length - 2];
-    const newFuture = [matchState!, ...future];
-
+    const currentState = matchState!;
+    
     setMatchState(previousState);
-    setHistory(history.slice(0, -1));
-    setFuture(newFuture);
+    setHistory((prev) => prev.slice(0, -1));
+    setFuture((prev) => [currentState, ...prev]);
+    
+    toast("Move undone");
   };
 
   const handleRedo = () => {
     if (future.length === 0) return;
 
     const nextState = future[0];
-    const newFuture = future.slice(1);
-
+    
     setMatchState(nextState);
-    setHistory([...history, nextState]);
-    setFuture(newFuture);
+    setHistory((prev) => [...prev, nextState]);
+    setFuture((prev) => prev.slice(1));
+    
+    toast("Move redone");
   };
 
   if (!matchState) {
@@ -77,14 +82,36 @@ const Index = () => {
   }
 
   return (
-    <Scoreboard
-      matchState={matchState}
-      onPoint={handlePoint}
-      onUndo={handleUndo}
-      onRedo={handleRedo}
-      canUndo={history.length > 1}
-      canRedo={future.length > 0}
-    />
+    <div className="flex flex-col gap-4">
+      <div className="flex justify-center gap-2 mb-4">
+        <Button 
+          onClick={handleUndo} 
+          disabled={history.length <= 1}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <Undo2 className="w-4 h-4" />
+          Undo
+        </Button>
+        <Button 
+          onClick={handleRedo} 
+          disabled={future.length === 0}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <Redo2 className="w-4 h-4" />
+          Redo
+        </Button>
+      </div>
+      <Scoreboard
+        matchState={matchState}
+        onPoint={handlePoint}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        canUndo={history.length > 1}
+        canRedo={future.length > 0}
+      />
+    </div>
   );
 };
 
