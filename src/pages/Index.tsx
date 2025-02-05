@@ -35,8 +35,15 @@ const Index = () => {
     if (!matchState) return;
 
     const newState = processPoint(matchState, player, shot);
+    console.log("New state after point:", newState);
+    console.log("Current history before update:", history);
+    
     setMatchState(newState);
-    setHistory((prev) => [...prev, { ...newState }]); // Create a new object to ensure state immutability
+    setHistory((prev) => {
+      const newHistory = [...prev, { ...newState }];
+      console.log("Updated history:", newHistory);
+      return newHistory;
+    });
     setFuture([]);
 
     if (shot === "Error") {
@@ -54,13 +61,20 @@ const Index = () => {
   const handleUndo = () => {
     if (history.length <= 1) return;
 
+    console.log("Current history before undo:", history);
     const newHistory = history.slice(0, -1);
     const lastState = history[history.length - 1];
     const previousState = newHistory[newHistory.length - 1];
 
-    setMatchState({ ...previousState }); // Create a new object to ensure state immutability
+    console.log("Previous state to restore:", previousState);
+    
+    setMatchState({ ...previousState });
     setHistory(newHistory);
-    setFuture((prev) => [lastState, ...prev]);
+    setFuture((prev) => {
+      const newFuture = [lastState, ...prev];
+      console.log("Updated future states:", newFuture);
+      return newFuture;
+    });
 
     toast.info("Previous point undone", {
       style: { background: '#004b8d', color: 'white' }
@@ -70,10 +84,17 @@ const Index = () => {
   const handleRedo = () => {
     if (future.length === 0) return;
 
+    console.log("Current future states before redo:", future);
     const [nextState, ...remainingFuture] = future;
     
-    setMatchState({ ...nextState }); // Create a new object to ensure state immutability
-    setHistory((prev) => [...prev, nextState]);
+    console.log("Next state to restore:", nextState);
+    
+    setMatchState({ ...nextState });
+    setHistory((prev) => {
+      const newHistory = [...prev, nextState];
+      console.log("Updated history after redo:", newHistory);
+      return newHistory;
+    });
     setFuture(remainingFuture);
 
     toast.info("Point redone", {
